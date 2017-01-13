@@ -1,0 +1,112 @@
+// --------------------------------------
+// 設定一個程式暫存的 key
+// 參考文件:https://github.com/phpredis/phpredis#connect-open
+// 成功傳回 1 失敗傳回 0
+// --------------------------------------
+function setakey($key, $value, $db=3, $expire=3600) {
+
+	global $redisdb;
+
+	$redis = new Redis();
+	// 2 秒 timeout
+	if($redis->pconnect($redisdb['host'], 6379, 1)) {
+		// success
+		if($redis->auth($redisdb['auth'])) {
+			// echo 'Authentication Success';
+		}else{
+			return(0);
+			die('Authentication failed');
+		}
+	}else{
+		// error
+		return(0);
+		die('Connection Failed');
+	}
+	// 選擇 DB
+	$redis->select($db);
+	// echo "Server is running: ".$redis->ping();
+
+	// 設定 timeout 值, 目前的時間往後加上去
+	$server_time 	= time(true);
+	// $expire			= 14400;
+	$expire_time	= $server_time + $expire;
+
+	$r[1] = $redis->set($key, $value);
+	$r[2] = $redis->expireAt($key, $expire_time);
+
+	// var_dump($r);
+
+	return($r);
+}
+
+
+// --------------------------------------
+// 刪除一個 程式暫存的 key
+// 參考文件:https://github.com/phpredis/phpredis#connect-open
+// 成功傳回 1 失敗傳回 0
+// --------------------------------------
+function delakey($key,$db=3) {
+
+	global $redisdb;
+
+	$redis = new Redis();
+	// 2 秒 timeout
+	if($redis->pconnect($redisdb['host'], 6379, 1)) {
+		// success
+		if($redis->auth($redisdb['auth'])) {
+			// echo 'Authentication Success';
+		}else{
+			return(0);
+			die('Authentication failed');
+		}
+	}else{
+		// error
+		return(0);
+		die('Connection Failed');
+	}
+	// 選擇 DB
+	$redis->select($db);
+	// echo "Server is running: ".$redis->ping();
+
+	$r = $redis->delete($key);
+  // Long Number of keys deleted.
+
+	return($r);
+}
+
+
+
+// --------------------------------------
+// 刪除一個 程式暫存的 key
+// 參考文件:https://github.com/phpredis/phpredis#connect-open
+// 成功傳回 1 失敗傳回 0
+// --------------------------------------
+function getakey($key,$db=3) {
+
+	global $redisdb;
+
+	$redis = new Redis();
+	// 2 秒 timeout
+	if($redis->pconnect($redisdb['host'], 6379, 1)) {
+		// success
+		if($redis->auth($redisdb['auth'])) {
+			// echo 'Authentication Success';
+		}else{
+			return(0);
+			die('Authentication failed');
+		}
+	}else{
+		// error
+		return(0);
+		die('Connection Failed');
+	}
+	// 選擇 DB
+	$redis->select($db);
+	// echo "Server is running: ".$redis->ping();
+
+	// 取得 key 的 value
+  $r = $redis->get($key);
+  // String or Bool: If key didn't exist, FALSE is returned. Otherwise, the value related to this key is returned.
+
+	return($r);
+}
